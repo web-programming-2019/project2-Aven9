@@ -74,6 +74,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 channel.innerHTML = channels[i];
                 channel.id = channels[i];
                 channel.dataset.channelName = channels[i];
+                channel.onclick = () => {
+                    channel_clicked(channel.id);
+                };
                 document.querySelector("#channels").append(channel);
             }
         }
@@ -89,11 +92,10 @@ document.addEventListener('DOMContentLoaded', () => {
         let channel = JSON.parse(localStorage.getItem(channelsKey))[channelName];
         if (channel) {
             let msgs = channel['msgs'];
-            for (msg in msgs) {
-                let li = document.createElement('li');
-                li.innerHTML = msgs['user'] + ' : ' + msgs['content'] + "--" + msgs['timestamp'];
-                document.querySelector("#messages").append(li);
+            for (let i in msgs) {
+                load_message(msgs[i]);
             }
+            // msgs.forEach(load_message());
         }
 
     }
@@ -119,6 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem(currentUser, username);
         document.getElementById('modify-username').disabled = true;
         load_channels();
+
         return false;
     };
     
@@ -201,39 +204,61 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+    // var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
 
-    socket.on('connect', () => {
+    /**
+     * test button, if still not work then use ajex
+     * **/
 
-        document.querySelectorAll("button.list-group-item, button.list-group-item-action").forEach(button => {
+    function load_message(content) {
+        if (content) {
+            let msg = document.createElement('li');
+            msg.innerText = content['user'] + " : " + content['content'] + " -- " + content['timestamp'];
+            document.querySelector("#messages").append(msg);
+        }
+    }
+
+    document.querySelectorAll("button.list-group-item, button.list-group-item-action").forEach(button => {
             button.onclick = () => {
-                channel_selected = button.id;
-                load_messages(button.id);
-                alert(button.id + " clicked");
-                let msg = prompt("Send a message.");
-
-                if (msg) {
-                    let username = document.querySelector("#username").value;
-                    let timestamp = new Date().getTime();
-                    storeMessage(msg, timestamp, button.id);
-                    socket.emit('message', {"message": msg, "username": username, "timestamp": timestamp, "channel": button.id});
-                }
-
+                channel_clicked(button.id);
             };
-        });
-
     });
+
+    function channel_clicked(button_id) {
+        load_messages(button_id);
+        alert(button_id + " clicked");
+        const req = new XMLHttpRequest();
+        req.open("POST", "/load");
+        req.onload = () => {
+            let data = JSON.parse(req.responseText);
+            if (data) {
+                data.forEach(load_message);
+            }
+        };
+
+        let data = new FormData();
+        let msg = prompt("Send a message.");
+        if (msg) {
+            let username = document.querySelector("#username").value;
+            let t = new Date().getTime().toString(10);
+            storeMessage(msg, t, button_id);
+            data.append('user', username);
+            data.append('content', msg);
+            data.append('timestamp', t);
+            req.send(data);
+        }
+    }
 
     function storeMessage(msg, timestamp, channelName) {
         let username = document.querySelector("#username").value;
         let channels = JSON.parse(localStorage.getItem(channelsKey));
         if (!channels.hasOwnProperty(channelName)) {
             channels[channelName] = {'users':[username],
-                'msgs': {
+                'msgs': [{
                     'user': username,
                     'content': msg,
                     'timestamp': timestamp
-                }
+                }]
             };
         } else {
             if (!channels[channelName]['users'].includes(username)) {
@@ -249,13 +274,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    socket.on('response', data => {
-        const msg = document.createElement('li');
-        msg.innerHTML = data["username"] + " : " + data["message"] + "--" + data["timestamp"];
-        if (data["channel"] === channel_selected) {
-            document.querySelector('#messages').append(msg);
-        }
 
-    });
+    // socket.on('connect', () => {
+    //
+    //     document.querySelectorAll("button.list-group-item, button.list-group-item-action").forEach(button => {
+    //         button.onclick = () => {
+    //             channel_selected = button.id;
+    //             load_messages(button.id);
+    //             // alert(button.id + " clicked");
+    //             let msg = prompt("Send a message.");
+    //
+    //             if (msg) {
+    //                 let username = document.querySelector("#username").value;
+    //                 let timestamp = new Date().getTime();
+    //                 storeMessage(msg, timestamp, button.id);
+    //                 socket.emit('message', {"message": msg, "username": username, "timestamp": timestamp, "channel": button.id});
+    //             }
+    //
+    //         };
+    //     });
+    //
+    // });
+
+
+
+    // socket.on('response', data => {
+    //     const msg = document.createElement('li');
+    //     msg.innerHTML = data["username"] + " : " + data["message"] + "--" + data["timestamp"];
+    //     if (data["channel"] === channel_selected) {
+    //         document.querySelector('#messages').append(msg);
+    //     }
+    //
+    // });
 
 });

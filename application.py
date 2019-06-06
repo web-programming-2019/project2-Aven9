@@ -1,8 +1,7 @@
 import os
 
-from flask import Flask, render_template
-from flask_socketio import SocketIO, emit, join_room, leave_room, send
-
+from flask import Flask, render_template, request, jsonify
+from flask_socketio import SocketIO, emit
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 socketio = SocketIO(app)
@@ -13,13 +12,14 @@ def index():
     return render_template("index.html")
 
 
-# @socketio.on('join')
-# def on_join(data):
-#     username = data.username
-#     room = data['room']
-#     join_room(room)
-
-
 @socketio.on('message')
 def handle_message(message):
     emit('response', message, broadcast=True)
+
+
+@app.route("/load", methods=["POST", "GET"])
+def load():
+    user = request.form.get('user')
+    content = request.form.get('content')
+    timestamp = request.form.get('timestamp')
+    return jsonify([{'user': user, 'content': content, 'timestamp': timestamp}])
