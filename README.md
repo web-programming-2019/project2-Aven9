@@ -6,6 +6,8 @@ Web programming assignment. Project  2.
 
 User inputs username to login, once username is committed, channels of user will be loaded. User can create channel by clicking **Add Channel Button**. Each Item of channels list is a button, by which provides sending message function or loading message function.
 
+> Tip: running need export setting, flask run —no-reload, and, most important, proxy on.
+
  
 
 ## Feature
