@@ -8,39 +8,64 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/split.css') }}">
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.11/handlebars.min.js"></script>
+    <script id="message" type="text/x-handlebars-template">
+        <div class="jumbotron">
+            <h1 class="display-4">
+                {% raw -%}
+                    {{ user }}
+                {%- endraw %}
+            </h1>
+            <hr class="my-4">
+            <p class="lead">
+                {% raw -%}
+                    {{ content }}
+                {%- endraw %}
+            </p>
+            <p>
+                {% raw -%}
+                    {{ timestamp }}
+                {%- endraw %}
+            </p>
+        </div>
+    </script>
+
 
 </head>
 <body>
 
     <div class="d-md-flex h-md-100 align-items-center">
 
-        <!-- First part -->
+        <div class="Wrapper">
+            <!-- First part -->
 
-        <div class="col-md-3 p-0 bg-indigo h-md-100">
-            <div class="text-white d-md-flex align-items-top h-100 p-5 text-center justify-content-center">
-                <div class="logoarea pt-5 pb-5">
-                    <!-- User name -->
-                    <form class="d-flex justify-content-between" style="padding: 20px">
-                        <input id="username" type="text" autocomplete="off" autofocus placeholder="Username">
-                        <button id="modify-username" class="btn-primary">submit</button>
-                    </form>
+            <div class="col-md-3 p-0 bg-indigo h-md-100 left-part">
+                <div class="text-white d-md-flex align-items-top h-100 p-5 text-center justify-content-center">
+                    <div class="logoarea pt-5 pb-5">
+                        <!-- User name -->
+                        <form class="d-flex justify-content-between" style="padding: 20px">
+                            <input id="username" type="text" autocomplete="off" autofocus placeholder="Username">
+                            <button id="modify-username" class="btn-primary">submit</button>
+                        </form>
 
-                    <!-- Channel Creation -->
-                    <button id="new-channel" class="btn btn-primary" type="button" style="padding: 10px">Add Channel</button>
-                    <div id="channels" class="list-group" style="padding-top: 20px">
+                        <!-- Channel Creation -->
+                        <button id="new-channel" class="btn btn-primary" type="button" style="padding: 10px">Add Channel</button>
+                        <div id="channels" class="list-group" style="padding-top: 20px">
+
+                        </div>
 
                     </div>
-
                 </div>
             </div>
-        </div>
 
-         <!-- Second part -->
+             <!-- Second part -->
 
-        <div class="col-md-9 p-0 bg-white h-md-100 loginarea">
-            <div class="d-md-flex align-items-top h-md-100 p-5 justify-content-center">
-                <ul id="messages"></ul>
+            <div class="col-md-9 p-0 bg-white h-md-100 loginarea right-part">
+                <div class="d-md-flex align-items-top h-md-100 p-5 justify-content-center">
+                    <div id="messages"></div>
+                </div>
             </div>
+
         </div>
 
     </div>

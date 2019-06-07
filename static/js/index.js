@@ -87,9 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * **/
     function load_messages(button_id) {
         removeChild("messages");
-        let user = document.querySelector("#messages").value;
-        let channelName = button_id;
-        let channel = JSON.parse(localStorage.getItem(channelsKey))[channelName];
+        let channel = JSON.parse(localStorage.getItem(channelsKey))[button_id];
         if (channel) {
             let msgs = channel['msgs'];
             for (let i in msgs) {
@@ -157,6 +155,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 channel.innerHTML = name;
                 channel.id = name;
                 channel.dataset.channelName = name;
+                channel.onclick = () => {
+                    channel_clicked(channel.id);
+                };
                 document.querySelector("#channels").append(channel);
             }
         }
@@ -209,12 +210,15 @@ document.addEventListener('DOMContentLoaded', () => {
     /**
      * test button, if still not work then use ajex
      * **/
-
+    const message_template =Handlebars.compile(document.querySelector('#message').innerHTML);
     function load_message(content) {
         if (content) {
-            let msg = document.createElement('li');
-            msg.innerText = content['user'] + " : " + content['content'] + " -- " + content['timestamp'];
-            document.querySelector("#messages").append(msg);
+            // let msg = document.createElement('li');
+            // msg.innerText = content['user'] + " : " + content['content'] + " -- " + content['timestamp'];
+            // document.querySelector("#messages").append(msg);
+            const msg = message_template({'user': content['user'], 'content': content['content'], 'timestamp': content['timestamp']});
+            document.querySelector("#messages").innerHTML += msg;
+
         }
     }
 
@@ -231,9 +235,11 @@ document.addEventListener('DOMContentLoaded', () => {
         req.open("POST", "/load");
         req.onload = () => {
             let data = JSON.parse(req.responseText);
-            if (data) {
-                data.forEach(load_message);
+            // if (data) {
+            for (let i in data){
+                load_message(data[i]);
             }
+            // }
         };
 
         let data = new FormData();
@@ -245,7 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
             data.append('user', username);
             data.append('content', msg);
             data.append('timestamp', t);
-            req.send(data);
+            req.send(data)
         }
     }
 

@@ -17,9 +17,10 @@ def handle_message(message):
     emit('response', message, broadcast=True)
 
 
-@app.route("/load", methods=["POST", "GET"])
+@app.route("/load", methods=["POST"])
 def load():
-    user = request.form.get('user')
-    content = request.form.get('content')
-    timestamp = request.form.get('timestamp')
+    user = str(request.form.get('user'))
+    content = str(request.form.get('content'))
+    timestamp = str(request.form.get('timestamp'))
+
     return jsonify([{'user': user, 'content': content, 'timestamp': timestamp}])
